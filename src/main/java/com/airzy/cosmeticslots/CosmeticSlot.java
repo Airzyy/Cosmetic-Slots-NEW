@@ -1,7 +1,7 @@
 package com.airzy.cosmeticslots;
 
 import com.mojang.datafixers.util.Pair;
-import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -19,10 +19,10 @@ public final class CosmeticSlot extends Slot {
     public static final int FIRST_Y = 8;
     public static final int STEP = 18;
 
-    /** Set by the client mod class; lets the client reveal the slots only while their panel is hovered. */
-    private static volatile BooleanSupplier clientVisibility = () -> true;
+    /** Set by the client mod class; lets each cosmetic slot follow its matching vanilla slot's hover state. */
+    private static volatile Predicate<EquipmentSlot> clientVisibility = slot -> true;
 
-    public static void setClientVisibility(BooleanSupplier visibility) {
+    public static void setClientVisibility(Predicate<EquipmentSlot> visibility) {
         clientVisibility = visibility;
     }
 
@@ -44,7 +44,7 @@ public final class CosmeticSlot extends Slot {
 
     @Override
     public boolean isActive() {
-        return !owner.level().isClientSide || clientVisibility.getAsBoolean();
+        return !owner.level().isClientSide || clientVisibility.test(equipmentSlot);
     }
 
     @Nullable
@@ -101,7 +101,20 @@ public final class CosmeticSlot extends Slot {
 
         @Override
         public void setItem(int index, ItemStack stack) {
-            if (index == 0) CosmeticArmor.set(owner, slot, stack);
+            if (index != 0) return;
+
+            ItemStack previous = getItem(0);
+            boolean changedToAnotherItem = !stack.isEmpty()
+                    && !ItemStack.isSameItemSameComponents(previous, stack);
+
+            CosmeticArmor.set(owner, slot, stack);
+
+            // Play the equipable item's own armor-equip sound once, from the server.
+            // This keeps client prediction from playing a duplicate sound.
+            if (changedToAnotherItem && !owner.level().isClientSide
+                    && stack.getItem() instanceof Equipable equipable) {
+                owner.playSound(equipable.getEquipSound().value(), 1.0F, 1.0F);
+            }
         }
 
         @Override
