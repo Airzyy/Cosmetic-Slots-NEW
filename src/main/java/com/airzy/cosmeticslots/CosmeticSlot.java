@@ -8,7 +8,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,8 +37,9 @@ public final class CosmeticSlot extends Slot {
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        // Only items the vanilla armor layer can actually render for this slot.
-        return stack.getItem() instanceof ArmorItem armor && armor.getEquipmentSlot() == equipmentSlot;
+        // Accept vanilla and modded wearable armor, including GeckoLib-backed pieces.
+        return stack.getItem() instanceof Equipable equipable
+                && equipable.getEquipmentSlot() == equipmentSlot;
     }
 
     @Override
