@@ -7,7 +7,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 import org.jetbrains.annotations.Nullable;
@@ -71,6 +73,19 @@ public record CosmeticArmor(ItemStack head, ItemStack chest, ItemStack legs, Ite
 
     public static void set(Player player, EquipmentSlot slot, ItemStack stack) {
         player.setData(CosmeticAttachments.ARMOR, get(player).with(slot, stack));
+    }
+
+    /**
+     * Returns the cosmetic stack for a render-only armor lookup. The real equipment
+     * remains untouched, so attributes, durability and gameplay effects are unchanged.
+     */
+    public static ItemStack getRenderStack(LivingEntity entity, EquipmentSlot slot, ItemStack original) {
+        if (!(entity instanceof Player player)) return original;
+        ItemStack cosmetic = get(player).get(slot);
+        if (cosmetic.isEmpty()) return original;
+        return cosmetic.getItem() instanceof Equipable equipable && equipable.getEquipmentSlot() == slot
+                ? cosmetic
+                : original;
     }
 
     public static void clear(Player player) {
