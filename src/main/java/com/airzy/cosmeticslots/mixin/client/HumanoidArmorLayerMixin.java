@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(HumanoidArmorLayer.class)
+@Mixin(value = HumanoidArmorLayer.class, remap = false)
 public abstract class HumanoidArmorLayerMixin {
     /**
      * When a player has a cosmetic piece in a slot, render that instead of the real armor.
