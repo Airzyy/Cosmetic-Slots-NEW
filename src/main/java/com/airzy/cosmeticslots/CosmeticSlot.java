@@ -14,12 +14,12 @@ import org.jetbrains.annotations.Nullable;
 
 /** A single cosmetic armor slot, backed by the player's {@link CosmeticArmor} attachment. */
 public final class CosmeticSlot extends Slot {
-    /** Slot position relative to the inventory screen: a column just left of the vanilla armor column. */
-    public static final int X = -21;
+    /** Slot position relative to the inventory screen: immediately right of the vanilla armor column. */
+    public static final int X = 26;
     public static final int FIRST_Y = 8;
     public static final int STEP = 18;
 
-    /** Set by the client mod class; lets the client hide the slots (recipe book open, creative screen). */
+    /** Set by the client mod class; lets the client reveal the slots only while their panel is hovered. */
     private static volatile BooleanSupplier clientVisibility = () -> true;
 
     public static void setClientVisibility(BooleanSupplier visibility) {
