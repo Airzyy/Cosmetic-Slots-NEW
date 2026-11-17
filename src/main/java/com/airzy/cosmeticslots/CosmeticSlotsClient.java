@@ -3,7 +3,6 @@ package com.airzy.cosmeticslots;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -11,9 +10,11 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
-/** Client-only part: draws the slot panel and hides the slots where they would not fit. */
+/** Client-only part: reveals the cosmetic column when the armor-slot group is hovered. */
 @Mod(value = CosmeticSlots.MOD_ID, dist = Dist.CLIENT)
 public final class CosmeticSlotsClient {
+    private static boolean panelVisible;
+
     public CosmeticSlotsClient(IEventBus modBus) {
         CosmeticSlot.setClientVisibility(CosmeticSlotsClient::slotsVisible);
         NeoForge.EVENT_BUS.addListener(CosmeticSlotsClient::drawPanel);
@@ -21,35 +22,50 @@ public final class CosmeticSlotsClient {
 
     private static boolean slotsVisible() {
         Screen screen = Minecraft.getInstance().screen;
-        if (screen instanceof InventoryScreen inventory) {
-            // The recipe book opens over the area where the panel sits.
-            return !inventory.getRecipeBookComponent().isVisible();
-        }
-        // The creative screen re-lays-out the player's menu slots and has no room for ours.
-        return !(screen instanceof CreativeModeInventoryScreen);
+        return panelVisible
+                && screen instanceof InventoryScreen inventory
+                && !inventory.getRecipeBookComponent().isVisible();
     }
 
     private static void drawPanel(ContainerScreenEvent.Render.Background event) {
-        if (!(event.getContainerScreen() instanceof InventoryScreen screen) || !slotsVisible()) return;
+        if (!(event.getContainerScreen() instanceof InventoryScreen screen)) {
+            panelVisible = false;
+            return;
+        }
 
-        GuiGraphics g = event.getGuiGraphics();
+        // The recipe book covers this area, so collapse the cosmetic column while it is open.
+        if (screen.getRecipeBookComponent().isVisible()) {
+            panelVisible = false;
+            return;
+        }
+
         int left = screen.getGuiLeft();
         int top = screen.getGuiTop();
+        int mouseX = event.getMouseX();
+        int mouseY = event.getMouseY();
 
-        // Panel behind the slots (vanilla-style grey with a dark outline).
-        int panelLeft = left + CosmeticSlot.X - 5;
-        int panelTop = top + CosmeticSlot.FIRST_Y - 5;
-        int panelBottom = top + CosmeticSlot.FIRST_Y + CosmeticSlot.STEP * 4 - 1 + 4;
-        g.fill(panelLeft, panelTop, left, panelBottom, 0xFF000000);
-        g.fill(panelLeft + 1, panelTop + 1, left, panelBottom - 1, 0xFFC6C6C6);
+        int slotsTop = top + CosmeticSlot.FIRST_Y;
+        int slotsBottom = slotsTop + CosmeticSlot.STEP * CosmeticArmor.SLOTS.length;
 
-        // One vanilla-looking 18x18 slot frame per cosmetic slot.
-        for (int i = 0; i < CosmeticArmor.SLOTS.length; i++) {
-            int fx = left + CosmeticSlot.X - 1;
-            int fy = top + CosmeticSlot.FIRST_Y + i * CosmeticSlot.STEP - 1;
-            g.fill(fx, fy, fx + 18, fy + 18, 0xFF373737);
-            g.fill(fx + 1, fy + 1, fx + 18, fy + 18, 0xFFFFFFFF);
-            g.fill(fx + 1, fy + 1, fx + 17, fy + 17, 0xFF8B8B8B);
-        }
+        // Hovering the real armor column opens the cosmetic column. Once open, it stays
+        // open while the pointer moves across to or rests over the cosmetic slots.
+        boolean hoveringArmorColumn = mouseX >= left + 8 && mouseX < left + 26
+                && mouseY >= slotsTop && mouseY < slotsBottom;
+        boolean hoveringCosmeticColumn = mouseX >= left + CosmeticSlot.X
+                && mouseX < left + CosmeticSlot.X + 18
+                && mouseY >= slotsTop && mouseY < slotsBottom;
+        panelVisible = hoveringArmorColumn || (panelVisible && hoveringCosmeticColumn);
+
+        if (!panelVisible) return;
+
+        GuiGraphics g = event.getGuiGraphics();
+
+        // One shared vanilla-style panel frames both the real and cosmetic armor columns.
+        int panelLeft = left + 6;
+        int panelTop = top + 6;
+        int panelRight = left + CosmeticSlot.X + 18 + 1;
+        int panelBottom = slotsBottom + 1;
+        g.fill(panelLeft, panelTop, panelRight, panelBottom, 0xFF000000);
+        g.fill(panelLeft + 1, panelTop + 1, panelRight - 1, panelBottom - 1, 0xFFC6C6C6);
     }
 }
