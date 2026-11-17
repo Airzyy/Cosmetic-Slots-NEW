@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(InventoryMenu.class)
+@Mixin(value = InventoryMenu.class, remap = false)
 public abstract class InventoryMenuMixin {
     /** Appends the cosmetic slots after all vanilla slots, so vanilla slot indices never change. */
     @Inject(method = "<init>", at = @At("TAIL"))
