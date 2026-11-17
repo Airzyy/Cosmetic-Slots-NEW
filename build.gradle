@@ -12,6 +12,22 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
+repositories {
+    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+}
+
+dependencies {
+    // Generate the refmap used to remap Minecraft method and invocation targets at runtime.
+    annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += [
+            "-AoutRefMapFile=${projectDir}/src/main/resources/${mod_id}.refmap.json",
+            '-AdefaultObfuscationEnv=searge'
+    ]
+}
+
 neoForge {
     version = project.neo_version
 
