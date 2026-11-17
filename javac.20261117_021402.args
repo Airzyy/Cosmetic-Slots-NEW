@@ -1,0 +1,12 @@
+-proc:none
+-d
+/tmp/cls
+src/main/java/com/airzy/cosmeticslots/mixin/InventoryMenuMixin.java
+src/main/java/com/airzy/cosmeticslots/mixin/AbstractContainerMenuAccessor.java
+src/main/java/com/airzy/cosmeticslots/mixin/client/HumanoidArmorLayerMixin.java
+src/main/java/com/airzy/cosmeticslots/CosmeticEvents.java
+src/main/java/com/airzy/cosmeticslots/CosmeticAttachments.java
+src/main/java/com/airzy/cosmeticslots/CosmeticSlots.java
+src/main/java/com/airzy/cosmeticslots/CosmeticSlot.java
+src/main/java/com/airzy/cosmeticslots/CosmeticArmor.java
+src/main/java/com/airzy/cosmeticslots/CosmeticSlotsClient.java
