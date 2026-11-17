@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 /** NeoForge 1.21.1 runs on Mojang names, so these are the plain method names (not SRG "m_xxxx_"). */
-@Mixin(AbstractContainerMenu.class)
+@Mixin(value = AbstractContainerMenu.class, remap = false)
 public interface AbstractContainerMenuAccessor {
     @Invoker("addSlot")
     Slot cosmeticslots$addSlot(Slot slot);
