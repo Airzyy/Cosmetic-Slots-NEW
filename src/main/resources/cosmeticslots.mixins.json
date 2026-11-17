@@ -3,6 +3,7 @@
   "minVersion": "0.8",
   "package": "com.airzy.cosmeticslots.mixin",
   "compatibilityLevel": "JAVA_21",
+  "refmap": "cosmeticslots.refmap.json",
   "mixins": [
     "AbstractContainerMenuAccessor",
     "InventoryMenuMixin"
