@@ -81,23 +81,20 @@ public final class CosmeticSlotsClient {
         int row = slotIndex(visibleSlot);
         if (row < 0) return;
 
-        int left = screen.getGuiLeft();
-        int top = screen.getGuiTop();
-        int rowTop = top + CosmeticSlot.FIRST_Y + row * CosmeticSlot.STEP;
+        // Foreground is posted while AbstractContainerScreen's pose is already translated
+        // to leftPos/topPos, so everything drawn here must use screen-local coordinates.
         int rowSlotY = CosmeticSlot.FIRST_Y + row * CosmeticSlot.STEP;
-
         GuiGraphics g = event.getGuiGraphics();
 
         // Repaint the backing panel on top of the player model.
-        int panelLeft = left + 6;
-        int panelTop = rowTop - 2;
-        int panelRight = left + CosmeticSlot.X + 18 + 1;
-        int panelBottom = rowTop + CosmeticSlot.STEP + 1;
+        int panelLeft = 6;
+        int panelTop = rowSlotY - 2;
+        int panelRight = CosmeticSlot.X + 18 + 1;
+        int panelBottom = rowSlotY + CosmeticSlot.STEP + 1;
         g.fill(panelLeft, panelTop, panelRight, panelBottom, 0xFF000000);
         g.fill(panelLeft + 1, panelTop + 1, panelRight - 1, panelBottom - 1, 0xFFC6C6C6);
 
-        // The foreground panel covers the original slot contents too. Re-render the
-        // matching vanilla and cosmetic slots with Minecraft's own slot renderer.
+        // Re-render the matching vanilla and cosmetic slots with Minecraft's own slot renderer.
         Slot armorSlot = null;
         Slot cosmeticSlot = null;
         for (Slot slot : screen.getMenu().slots) {
@@ -111,13 +108,10 @@ public final class CosmeticSlotsClient {
         }
 
         AbstractContainerScreenAccessor accessor = (AbstractContainerScreenAccessor) (Object) screen;
-        g.pose().pushPose();
-        g.pose().translate((float) left, (float) top, 0.0F);
         if (armorSlot != null) accessor.cosmeticslots$renderSlot(g, armorSlot);
         if (cosmeticSlot != null && cosmeticSlot.isActive()) {
             accessor.cosmeticslots$renderSlot(g, cosmeticSlot);
         }
-        g.pose().popPose();
     }
 
     private static int slotIndex(EquipmentSlot slot) {
