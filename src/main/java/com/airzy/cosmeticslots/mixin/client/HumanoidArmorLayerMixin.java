@@ -14,13 +14,12 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(value = HumanoidArmorLayer.class, remap = false)
 public abstract class HumanoidArmorLayerMixin {
     /**
-     * When a player has a cosmetic piece in a slot, render that instead of the real armor.
-     * Wrapped (not redirected) so other mods touching the same call still work.
-     * NeoForge adds a second renderArmorPiece overload that just delegates; the one that
-     * actually calls getItemBySlot is the one that gets patched.
+     * NeoForge 1.21.1 keeps the original six-argument method as a deprecated
+     * overload and routes armor rendering through its twelve-argument method.
+     * Target that exact overload so cosmetic stacks replace the rendered armor.
      */
     @WrapOperation(
-            method = "renderArmorPiece",
+            method = "renderArmorPiece(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/EquipmentSlot;ILnet/minecraft/client/model/HumanoidModel;FFFFFF)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/LivingEntity;getItemBySlot(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/item/ItemStack;"
