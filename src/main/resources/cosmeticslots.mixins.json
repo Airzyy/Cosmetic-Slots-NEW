@@ -8,6 +8,7 @@
     "InventoryMenuMixin"
   ],
   "client": [
+    "client.AbstractContainerScreenAccessor",
     "client.HumanoidArmorLayerMixin",
     "client.ArmorModelApiMixin",
     "client.GeckoLibArmorMixin"
